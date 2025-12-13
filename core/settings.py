@@ -39,6 +39,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'unfold',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -49,10 +50,34 @@ INSTALLED_APPS = [
     'cloudinary'
 ]
 
+UNFOLD = {
+    "SITE_HEADER": "PromAdmin",
+    "SITE_TITLE": "PromAdmin - Gestión de Graduación",
+    "SITE_URL": "/",
+    "SHOW_APPS_ONLY": False,
+    "SHOW_CHANGE_FORM_FACTORY": True,
+    "COLORS": {
+        "primary": {
+            "50": "#F2F7FF",
+            "100": "#E6EFFD",
+            "200": "#D0E0FA",
+            "300": "#A0C0F3",
+            "400": "#6399EB",
+            "500": "#347AE4",
+            "600": "#225DCF",
+            "700": "#1549B8",
+            "800": "#0D3E9D",
+            "900": "#083381",
+            "950": "#052766",
+        },
+    },
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -112,9 +137,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-mx'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Mexico_City'
 
 USE_I18N = True
 

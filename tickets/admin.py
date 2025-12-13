@@ -1,14 +1,17 @@
-from django.contrib import admin
+from django.contrib import admin 
 from django.db.models import Sum
+from django.utils.html import format_html 
 from tickets.models import Alumno, Pago
+from unfold.admin import ModelAdmin, TabularInline 
 
-class PagoInline(admin.TabularInline):
+class PagoInline(TabularInline):
     model = Pago
     extra = 0
 
-class AlumnoAdmin(admin.ModelAdmin):
+@admin.register(Alumno) 
+class AlumnoAdmin(ModelAdmin):
     inlines = [PagoInline]
-    list_display = ('nombre', 'estado', 'invitados_min', 'invitados_max', 'boletos_pagados')
+    list_display = ('nombre', 'estado', 'estado_color', 'invitados_min', 'invitados_max', 'boletos_pagados') 
     list_filter = ('estado',)
 
     def get_readonly_fields(self, request, obj=None):
@@ -31,5 +34,22 @@ class AlumnoAdmin(admin.ModelAdmin):
     
     boletos_pagados.short_description = "Boletos Pagados"
 
-admin.site.register(Alumno, AlumnoAdmin)
-admin.site.register(Pago)
+    def estado_color(self, obj):
+        colors = {
+            'al_corriente': 'green',
+            'pendiente': 'red',
+            'prorroga': 'orange',
+        }
+        color = colors.get(obj.estado, 'gray')
+        
+        return format_html(
+            '<span style="display:inline-block; width:15px; height:15px; border-radius:50%; background-color:{}; margin-right:5px; vertical-align:middle;"></span>',
+            color
+        )
+    estado_color.short_description = "Estado Visual"
+    estado_color.admin_order_field = 'estado' 
+
+@admin.register(Pago)
+class PagoAdmin(ModelAdmin):
+    list_display = ('alumno', 'cantidad_boletos', 'fecha_subida', 'comprobante')
+    list_filter = ('alumno__nombre',)
