@@ -47,6 +47,7 @@ class AlumnoAdmin(ModelAdmin):
     list_display = ('nombre', 'estado', 'estado_color', 'invitados_min', 'invitados_max', 'boletos_pagados', 'ultimo_comprobante') 
     list_filter = ('estado',)
     search_fields = ('nombre',)
+    ordering = ('nombre',)
 
     def get_readonly_fields(self, request, obj=None):
         if not request.user.is_superuser:
@@ -61,12 +62,18 @@ class AlumnoAdmin(ModelAdmin):
     def changelist_view(self, request, extra_context=None):
         self.list_editable = self.get_list_editable(request)
         return super().changelist_view(request, extra_context)
+    
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        qs = qs.annotate(total_boletos=Sum('pagos__cantidad_boletos'))
+        return qs
 
     def boletos_pagados(self, obj):
         total_boletos = obj.pagos.aggregate(Sum('cantidad_boletos'))['cantidad_boletos__sum'] or 0
         return total_boletos
     
     boletos_pagados.short_description = "Boletos Pagados"
+    boletos_pagados.admin_order_field = 'total_boletos'
 
     def estado_color(self, obj):
         colors = {
