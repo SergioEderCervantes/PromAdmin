@@ -72,6 +72,7 @@ UNFOLD = {
     "SITE_URL": "/",
     "SHOW_APPS_ONLY": False,
     "SHOW_CHANGE_FORM_FACTORY": True,
+    "DASHBOARD_CALLBACK": "tickets.dashboard.dashboard_callback",
     "COLORS": {
         "primary": {
             "50": "#F2F7FF",
@@ -106,7 +107,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
