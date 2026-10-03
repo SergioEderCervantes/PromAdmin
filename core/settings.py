@@ -28,17 +28,28 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = environ.get('SECRET_KEY', 'django-insecure-+n&5_byw4#(&jot5s59tn8jqi=--6i!iu6$6ia9t@&i^l709i(')
+SECRET_KEY = environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    raise RuntimeError('La variable de entorno SECRET_KEY es obligatoria')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = [
-    'graduacionisc.northcentralus.cloudapp.azure.com',
-    '20.80.21.209',
-    'localhost',
-    '127.0.0.1',
-]
+def env_list(name, default=''):
+    return [v.strip() for v in environ.get(name, default).split(',') if v.strip()]
+
+
+# Listas separadas por comas, ej. ALLOWED_HOSTS=midominio.com,localhost
+ALLOWED_HOSTS = env_list('ALLOWED_HOSTS', 'localhost,127.0.0.1')
+
+# Con HTTPS detras del proxy hay que incluir el esquema, ej. https://midominio.com
+CSRF_TRUSTED_ORIGINS = env_list('CSRF_TRUSTED_ORIGINS')
+
+# Dokploy/Traefik termina TLS y reenvia por HTTP
+if environ.get('USE_X_FORWARDED_PROTO', 'False') == 'True':
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 
 # Application definition
@@ -80,6 +91,7 @@ UNFOLD = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -115,7 +127,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': environ.get('DB_PATH', BASE_DIR / 'db.sqlite3'),
     }
 }
 
@@ -156,6 +168,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
+}
 
 
 #####################################################################

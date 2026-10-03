@@ -1,0 +1,21 @@
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      DEBUG: ${DEBUG:-False}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS}
+      USE_X_FORWARDED_PROTO: ${USE_X_FORWARDED_PROTO:-True}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      DB_PATH: /app/data/db.sqlite3
+    volumes:
+      - sqlite_data:/app/data
+    expose:
+      - "8000"
+
+volumes:
+  sqlite_data:
